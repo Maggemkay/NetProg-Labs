@@ -39,6 +39,7 @@ class Card:
 
 # a = Card(2, 13)
 # print(a)
+#testing dododoodo
 
 
 class CardDeck:
