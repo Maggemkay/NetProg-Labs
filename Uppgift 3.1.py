@@ -1,3 +1,5 @@
+from random import shuffle
+
 class Card:
     
     suiteStr = { 1: "Härter", 
@@ -37,25 +39,32 @@ class Card:
         return self.suiteStr[self._suite] + " " + self.valueStr[self._value]
 
 
-# a = Card(2, 13)
-# print(a)
-#testing dododoodo
-
-
 class CardDeck:
     def __init__(self):
-        self._cardList = {}    
+        self.reset()
 
     def shuffle(self):
-        pass
+        shuffle(self._cardList)
 
     def getCard(self):
-        pass
+        a = self._cardList[len(self._cardList) - 1]
+        self._cardList.pop()
+        return a
 
     def size(self):
-        pass
+        return len(self._cardList)
 
     def reset(self):
-        pass
+        self._cardList = list()
+        for i in range(1, 5):
+            for j in range(1, 14):
+                self._cardList.append(Card(i, j))
+        shuffle(self._cardList)
 
 
+# Testkod
+deck = CardDeck()
+deck.shuffle()
+while deck.size() > 0:
+    card = deck.getCard()
+    print("Kortet {} har värdet {}".format(card.getSuite(), card.getValue()))
