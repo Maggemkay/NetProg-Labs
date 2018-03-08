@@ -8,27 +8,27 @@ class Game:
         self._OppScore = 0
 
     def PlayRound(self, myMove, oppMove):
-        _myMove = makeMoveToNumb(myMove)
-        _oppMove = makeMoveToNumb(oppMove)
+        _myMove = self.makeMoveToNumb(myMove)
+        _oppMove = self.makeMoveToNumb(oppMove)
 
         if _myMove == _oppMove:
             print("You both picked the same move")
         elif _myMove == 3 and _oppMove == 2:
             print("You won the round!")
-            self._myScore++
+            self._myScore += 1
         elif _myMove == 2 and _oppMove == 1:
             print("You won the round!")
-            self._myScore++
+            self._myScore += 1
         elif _myMove == 1 and _oppMove == 3:
             print("You won the round!")
-            self._myScore++
+            self._myScore += 1
         else:
             print("Your opponent won the round.")
-            self._OppScore++
+            self._OppScore += 1
         
-        PrintScore()
+        self.PrintScore()
 
-    def makeMoveToNumb(self, move)
+    def makeMoveToNumb(self, move):
         _move = move.lower()
         if move == "r":
             return 1
@@ -40,12 +40,22 @@ class Game:
     def PrintScore(self):
         print("Score (you, opponent): {} - {} ".format(self._myScore, self._OppScore))
 
-    def isLegitMove(self, move)
+    def isLegitMove(self, move):
         _move = move.lower()
-        if _move is not "r" or "p" or "s":
-            return False
-        else:
+        if _move is "r" or "p" or "s":
             return True
+        else:
+            return False
+
+    def isOver(self):
+        if self._myScore == 10:
+            print("You won {} to {}".format(self._myScore, self._OppScore))
+            return True
+        elif self._OppScore == 10:
+            print("You lost {} to {}".format(self._myScore, self._OppScore))
+            return True
+        else:
+            return False
 
 
         
@@ -73,10 +83,12 @@ def ServerSetup():
                     break
                 else:
                     print("Not a valid move, try again")
-
-            clientSocket.sendall(bytearray(message, "ascii"))
+            clientSocket.sendall(bytearray(myMove, "ascii"))
 
             game.PlayRound(myMove, oppMove)
+
+            if game.isOver():
+                break
 
 
             # data = clientSocket.recv(1024)
@@ -106,13 +118,14 @@ def ClientSetup():
                 else:
                     print("Not a valid move, try again")
                     
-        clientSocket.sendall(bytearray(message, "ascii"))
+        clientSocket.sendall(bytearray(myMove, "ascii"))
         print("Waiting for opponent")
         oppMove = clientSocket.recv(1024)
 
         game.PlayRound(myMove, oppMove)
 
-        
+        if game.isOver():
+                break
 
 
 
@@ -142,41 +155,3 @@ while True:
     else:
         print("Wrong input, try again")
 
-
-# class Card:
-    
-#     suiteStr = { 1: "Härter", 
-#                 2: "Ruter",
-#                 3: "Spader",
-#                 4: "Klöver"
-#                 }
-
-#     valueStr = {
-#                 1: "Äss",
-#                 2: "Två",
-#                 3: "Tre",
-#                 4: "Fyra",
-#                 5: "Fem",
-#                 6: "Sex",
-#                 7: "Sju",
-#                 8: "Åtta",
-#                 9: "Nio",
-#                 10: "Tio",
-#                 11: "Knekt",
-#                 12: "Dam",
-#                 13: "Kung"
-#                 }
-
-#     def __init__(self, suite, value):
-#         assert 1 <= suite <= 4 and 1 <= value <= 13
-#         self._suite = suite
-#         self._value = value
-
-#     def getValue(self):
-#         return self._value
-
-#     def getSuite(self):
-#         return self._suite
-        
-#     def __str__(self):
-#         return self.suiteStr[self._suite] + " " + self.valueStr[self._value]
