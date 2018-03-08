@@ -7,7 +7,7 @@ def ServerSetup():
 
     while True:
         print("Listening for clients...")
-        (clientSocket, clientAddress) = clientSocket.accept()
+        (clientSocket, clientAddress) = serverSocket.accept()
         print("Connection from {}".format(clientAddress))
 
         while True:
@@ -33,3 +33,18 @@ def ClientSetup():
     print("Received:", data.decode("ascii"))
 
     clientSocket.close()
+
+
+print("Welcome to sten, sax, påse!")
+while True:
+    answer = input("Do you want to be client or server (C/S): ")
+    if (answer == "C" or answer == "c"):
+        ClientSetup()
+        break
+    elif(answer == "S" or answer == "s"):
+        ServerSetup()
+        break
+    else:
+        print("Wrong input, try again")
+
+
