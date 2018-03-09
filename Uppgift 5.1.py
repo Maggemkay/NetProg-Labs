@@ -7,19 +7,20 @@ class Game:
         self._myScore = 0
         self._OppScore = 0
 
-    def PlayRound(self, myMove, oppMove):
-        _myMove = self.makeMoveToNumb(myMove)
-        _oppMove = self.makeMoveToNumb(oppMove)
+    def PlayRound(self, thisPC, otherPC):
 
-        if _myMove == _oppMove:
+        _p1 = thisPC.lower()
+        _p2 = otherPC.lower()
+
+        if _p1 == _p2:
             print("You both picked the same move")
-        elif _myMove == 3 and _oppMove == 2:
+        elif _p1 == "r" and _p2 == "s":
             print("You won the round!")
             self._myScore += 1
-        elif _myMove == 2 and _oppMove == 1:
+        elif _p1 == "p" and _p2 == "r":
             print("You won the round!")
             self._myScore += 1
-        elif _myMove == 1 and _oppMove == 3:
+        elif _p1 == "s" and _p2 == "p":
             print("You won the round!")
             self._myScore += 1
         else:
@@ -28,21 +29,12 @@ class Game:
         
         self.PrintScore()
 
-    def makeMoveToNumb(self, move):
-        _move = move.lower()
-        if move == "r":
-            return 1
-        elif move == "p":
-            return 2
-        elif move == "s":
-            return 3
-
     def PrintScore(self):
         print("Score (you, opponent): {} - {} ".format(self._myScore, self._OppScore))
 
     def isLegitMove(self, move):
         _move = move.lower()
-        if _move is "r" or "p" or "s":
+        if _move == "r" or _move == "p" or _move == "s":
             return True
         else:
             return False
@@ -58,8 +50,6 @@ class Game:
             return False
 
 
-        
-
 def ServerSetup():
     serverSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
     serverSocket.bind(('127.0.0.1', 60003)) #Bind my IP + port
@@ -72,6 +62,7 @@ def ServerSetup():
 
         #The Game
         game = Game(True, serverSocket)
+        print("When it´s your turn, pick R/P/S.")
 
         while True:
             print("Waiting for opponent")
@@ -83,60 +74,43 @@ def ServerSetup():
                     break
                 else:
                     print("Not a valid move, try again")
+
             clientSocket.sendall(bytearray(myMove, "ascii"))
 
-            game.PlayRound(myMove, oppMove)
+            game.PlayRound(myMove, oppMove.decode("ascii"))
 
             if game.isOver():
                 break
 
-
-            # data = clientSocket.recv(1024)
-            # if not data:
-            #     break
-            # print('Received:', data.decode("ascii"))
-            # answer = "Thanks for the data!"
-            # clientSocket.sendall(bytearray(answer, "ascii"))
-            # print("Answered:", answer)
         clientSocket.close()
         print("Client {} disconnected".format(clientAddress))
 
 
 
-def ClientSetup():
+def ClientSetup(serverIP):
     clientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-    clientSocket.connect(('127.0.0.1', 60003)) #Connect to this server
+    clientSocket.connect((serverIP, 60003)) #Connect to this server
 
     #The Game
     game = Game(False, clientSocket)
+    print("When it´s your turn, pick R/P/S.")
 
     while True:
         while True:
-                myMove = input("Your move: ")
-                if game.isLegitMove(myMove):
-                    break
-                else:
-                    print("Not a valid move, try again")
+            myMove = input("Your move: ")
+            if game.isLegitMove(myMove):
+                break
+            else:
+                print("Not a valid move, try again")
                     
         clientSocket.sendall(bytearray(myMove, "ascii"))
         print("Waiting for opponent")
         oppMove = clientSocket.recv(1024)
 
-        game.PlayRound(myMove, oppMove)
+        game.PlayRound(myMove, oppMove.decode("ascii"))
 
         if game.isOver():
                 break
-
-
-
-
-
-        # message = input("Type yout message:")
-        # clientSocket.sendall(bytearray(message, "ascii"))
-        # print("Sent:", message)
-
-        # data = clientSocket.recv(1024)
-        # print("Received:", data.decode("ascii"))
 
     clientSocket.close()
 
@@ -145,13 +119,11 @@ print("Welcome to rock, paper, scissors!")
 while True:
     answer = input("Do you want to be client or server (C/S): ")
     if (answer == "C" or answer == "c"):
-        print("When it´s your turn, pick R/P/S.")
-        ClientSetup()
+        serverIP = input("The server IP: ")
+        ClientSetup(serverIP)
         break
     elif(answer == "S" or answer == "s"):
-        print("When it´s your turn, pick R/P/S.")
         ServerSetup()
         break
     else:
         print("Wrong input, try again")
-
