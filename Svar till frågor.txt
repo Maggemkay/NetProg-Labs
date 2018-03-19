@@ -3,7 +3,38 @@ Till fråga 1c:
 Vissa tecken tar upp mer än 8 bitar (typ 16, 24 etc..),
 åäö är ett bra exempel på detta och dessa finns ju i texten.
 
+---------------------------------------------------------------------------------
 Till fråga 2d:
 Man skulle (med exempeltext.txt) kunna komprimera
 texten till 16708 bytes om den behandlades som en
 minnesfri källa.
+
+---------------------------------------------------------------------------------
+Till fråga 4c:
+theCopy byte-array size: 30491
+theCopy bit-array size: 243928
+
+ZipCopy byte-array size: 19824
+ZipCopy bit-array size: 158592
+Bit per byte (zipCopy/theCopy): 5.201272506641304
+
+zipByteArr byte-array size: 12848
+zipByteArr bit-array size: 102784
+Bit per byte (zipByteArr/textByteArr): 3.3709619231904497
+
+i)      När vi tog komprimerad ByteArr (zipByteArr) delat med ByteArr
+ii)     När vi tog komprimerad theCopy (zipCopy) delat med theCopy
+iii)    När vi gjorde random på kopian så "förstörde" vi 'orders',
+        dvs att en symbol beror på de som kom innan.
+
+---------------------------------------------------------------------------------
+Till fråga 5b:
+zipT1 byte-array size: 87
+zipT10 byte-array size: 98
+
+---------------------------------------------------------------------------------
+Till fråga 5c:
+Nej, den blir nästan lika stor (lite större).
+Eftersom den innehåller samma sak 10 gånger så kan den komprimeras
+på ett sätt som förutspår vad som ska stå, vilket gör att den nästan blir 10 gånger
+mindre, eller orginalstorlek gånger antal kopior som finns.
