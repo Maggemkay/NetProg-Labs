@@ -1,0 +1,9 @@
+Till fråga 1c:
+29091 tecken och 30491 karaktärer
+Vissa tecken tar upp mer än 8 bitar (typ 16, 24 etc..),
+åäö är ett bra exempel på detta och dessa finns ju i texten.
+
+Till fråga 2d:
+Man skulle (med exempeltext.txt) kunna komprimera
+texten till 16708 bytes om den behandlades som en
+minnesfri källa.
