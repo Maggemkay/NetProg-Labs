@@ -20,7 +20,7 @@ def makeHisto(byteArr):
         hist[char] += 1
     return hist
 
-''
+
 def makeTree(histList):
     tree = queue.PriorityQueue()
     for i in range(len(histList)):
