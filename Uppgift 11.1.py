@@ -5,21 +5,27 @@ class Node:
     def __init__(self, prio, data):
         self.prio = prio
         self.data = data
-
     def __lt__(self, other):
         return self.prio < other.prio
-
     def __str__(self):
         if type(self.data) == int:
             return "{} {}".format(self.data, self.prio)
             
-
 def makeHisto(byteArr):
     hist = [0] * 255
     for char in byteArr:
         hist[char] += 1
     return hist
 
+def makeProb(histo):
+    total = 0
+    for amount in histo:
+        total += amount
+
+    prob = [0] *255
+    for item in histo:
+        prob.append(item / total)
+    return prob
 
 def makeTree(histList):
     tree = queue.PriorityQueue()
@@ -31,7 +37,6 @@ def makeTree(histList):
         tree.put(Node(t1.prio + t2.prio, (t1, t2))) 
     return tree
 
-
 def printTree(tree):
     if type(tree.data) == int:
         print(tree)
@@ -40,7 +45,6 @@ def printTree(tree):
         printTree(tree.data[0])
         printTree(tree.data[1])
 
-
 def treeHeight(tree, h = 0):
     if type(tree.data) == int:
         return 0
@@ -48,7 +52,6 @@ def treeHeight(tree, h = 0):
         h1 = treeHeight(tree.data[0]) + 1
         h2 = treeHeight(tree.data[1]) + 1
         return h1 if h2 < h1 else h2
-
 
 # def treeTotalNodes(tree, h = 0):
 #     if type(tree.data) == int:
@@ -65,7 +68,11 @@ def fillTable(node, binary = ""):
             char = chr(node.data)
         binCode = binary
         numbBin = len(binCode)
-        ideCode = math.log2(1 / node.prio)
+        test = probTable[node.data]
+        print(probTable[54])
+        print(test)
+        print(node.data)
+        ideCode = math.log2(1 / test)
 
         table[node.data] = [char, binCode, numbBin, ideCode]
     else:
@@ -77,9 +84,11 @@ txt = open("exempeltext.txt", "r").read()
 textByteArr = bytearray(txt, "UTF-8")
 
 table = {}
+probTable = makeProb(makeHisto(textByteArr))
 
-print("Chars: {}".format(len(txt)))
-print("textByteArr size: {}".format(len(textByteArr)))
+
+# print("Chars: {}".format(len(txt)))
+# print("textByteArr size: {}".format(len(textByteArr)))
 
 PQ = makeTree(makeHisto(textByteArr))
 rootNode = PQ.get()
