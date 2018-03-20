@@ -1,5 +1,6 @@
 import math
 import queue
+import collections
 
 class Node:
     def __init__(self, prio, data):
@@ -21,10 +22,9 @@ def makeProb(histo):
     total = 0
     for amount in histo:
         total += amount
-
     prob = [0] *255
-    for item in histo:
-        prob.append(item / total)
+    for i in range(len(histo)):
+        prob[i] = (histo[i] / total)
     return prob
 
 def makeTree(histList):
@@ -52,14 +52,6 @@ def treeHeight(tree, h = 0):
         h1 = treeHeight(tree.data[0]) + 1
         h2 = treeHeight(tree.data[1]) + 1
         return h1 if h2 < h1 else h2
-
-# def treeTotalNodes(tree, h = 0):
-#     if type(tree.data) == int:
-#         return 0
-#     else:
-#         h1 = avgTreeLen(tree.data[0]) + 1
-#         h2 = avgTreeLen(tree.data[1]) + 1
-#         return h1 if h2 < h1 else h2
     
 def fillTable(node, binary = ""):
     if type(node.data) == int:
@@ -68,12 +60,7 @@ def fillTable(node, binary = ""):
             char = chr(node.data)
         binCode = binary
         numbBin = len(binCode)
-        test = probTable[node.data]
-        print(probTable[54])
-        print(test)
-        print(node.data)
-        ideCode = math.log2(1 / test)
-
+        ideCode = math.log2(1 / probTable[node.data])
         table[node.data] = [char, binCode, numbBin, ideCode]
     else:
         fillTable(node.data[0], "{}0".format(binary))
@@ -82,22 +69,22 @@ def fillTable(node, binary = ""):
 
 txt = open("exempeltext.txt", "r").read()
 textByteArr = bytearray(txt, "UTF-8")
-
 table = {}
 probTable = makeProb(makeHisto(textByteArr))
-
-
-# print("Chars: {}".format(len(txt)))
-# print("textByteArr size: {}".format(len(textByteArr)))
 
 PQ = makeTree(makeHisto(textByteArr))
 rootNode = PQ.get()
 
-printTree(rootNode)
-
-print("Tree height: {}".format(treeHeight(rootNode)))
+#printTree(rootNode)
 
 fillTable(rootNode)
-for key in table:
-    print(table[key])
+sortedTable = collections.OrderedDict(sorted(table.items()))
 
+totalTreeHeight = 0
+print("ASCII".ljust(7) + "Char".ljust(6) + "Bit-Array".ljust(18) + "BitLen".ljust(9) + "Ideal code-length")
+for key in sortedTable:
+    print(str(key).ljust(7) + str(sortedTable[key][0]).ljust(6) + str(sortedTable[key][1]).ljust(18) + str(sortedTable[key][2]).ljust(9) + str(sortedTable[key][3]))
+    totalTreeHeight += sortedTable[key][2]
+
+print("Tree height: {}".format(treeHeight(rootNode)))
+print("Avrage Tree height: {}".format((totalTreeHeight / len(sortedTable))))
