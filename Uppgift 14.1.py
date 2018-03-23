@@ -2,67 +2,49 @@ import sqlite3
 import urllib.request
 import re
 import codecs
+import datetime
 
-file = codecs.open("htmlfile.txt", "w", "utf-8")
+svtPlayUrl = "https://www.svtplay.se/kanaler?channel=tv6"
+dateTracker = datetime.datetime.now()
+days = 0
+maxDays = 30
 
-
-
-# Get the episodes and air-times
-page = urllib.request.urlopen("https://www.svtplay.se/kanaler?channel=tv6&date=2018-03-23")
-svtPage = page.read().decode("utf-8")
-
-playListFromScript = re.findall(r"programs\":(.*?)\"schedules\":", str(svtPage))
-allSimp = re.findall(r"{[^}]*\"Simpsons\"}", str(playListFromScript))
-
-simpEpisode = []
-simpTime = []
-
-for episode in allSimp:
-    simpEpisode.append(re.findall(r"Säsong.*av \d\d\.", str(episode)))
-    simpTime.append(re.findall(r"\"publishingTime\":\"(.*)\",\"longDescription\"", str(episode)))
-
-
-
-# Make the Database
 conn = sqlite3.connect("tvDB")
 c = conn.cursor()
 
-# un-comment if you dont have table or you want to drop the current existing table
-# c.execute("CREATE TABLE simpsons(episode text, airTime text)")
-# c.execute("DROP TABLE simpsons")
+# remake the table after each run
+c.execute("DROP TABLE simpsons")
+c.execute("CREATE TABLE simpsons(date text, time text, season INTEGER, episode INTEGER, totalEpisodes INTEGER)")
 
-merge = []
-for i in range(0, len(simpEpisode)):
-    merge.append((simpEpisode[i], simpTime[i]))
+while days < maxDays:
+    # Get the episodes and air-times
+    page = urllib.request.urlopen(svtPlayUrl + "&date=" + dateTracker.strftime("%Y-%m-%d"))
+    svtPage = page.read().decode("utf-8")
+
+    playListFromScript = re.findall(r"programs\":(.*?)\"schedules\":", str(svtPage))
+    allSimp = re.findall(r"{[^}]*\"Simpsons\"}", str(playListFromScript))
+
+    simpDetails = []
+    for episode in allSimp:
+        simpDetails.append(re.findall(r"publishingTime...(\d\d\d\d.\d\d.\d\d).(\d\d.\d\d).*Säsong.(\d?[|*\d]).*Del.(\d?[|*\d]).*av.(\d?[|*\d])", str(episode)))  
+
+    for detail in simpDetails:
+        c.execute("SELECT * FROM simpsons WHERE season = {} AND episode = {}".format(detail[0][2], detail[0][3]))
+        checkDuplicates = c.fetchall()
+        if len(checkDuplicates) == 0:
+            c.execute("INSERT INTO simpsons VALUES (?, ?, ?, ?, ?)", (detail[0][0], detail[0][1], detail[0][2], detail[0][3], detail[0][4]))
+
+    # DEBUG
+    for a in simpDetails:
+        print(a)
+
+    dateTracker += datetime.timedelta(days = 1)
+    days += 1
 
 
-
-#c.execute("INSERT INTO simpsons VALUES (?, ?)", str(simpEpisode[i]) + str(simpTime[i]))
-
-
+conn.commit()
+conn.close()
 
 
-
-
-
-# DEGUG
-# testArr = []
-# for episode in allSimp:
-#     testArr.append(episode)
-# for a in testArr:
-#     print(a)
-
-# Debug
-#print(allSimpssons)
-
-for i in range(0, len(simpEpisode)):
-    print(str(simpEpisode[i]))
-    print(str(simpTime[i]) + "\n")
-  
-
-for i in range(0, len(simpEpisode)):
-    a = str(simpEpisode[i]) + "\n" + str(simpTime[i]) + "\n\n"
-    file.write(a)
-file.close()
 
 
